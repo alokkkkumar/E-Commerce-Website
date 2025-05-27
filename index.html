@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Awesome E-commerce Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        body::-webkit-scrollbar {
+            display: none;
+        }
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+        }
+        .product-card img {
+            height: 200px;
+            object-fit: cover;
+        }
+        .hamburger-icon {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            z-index: 50;
+        }
+        .hamburger-icon span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: #fff; 
+            border-radius: 2px;
+            transition: all 0.3s ease-in-out;
+        }
+        .hamburger-icon.active span:nth-child(1) {
+            transform: translateY(10px) rotate(45deg);
+        }
+        .hamburger-icon.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger-icon.active span:nth-child(3) {
+            transform: translateY(-10px) rotate(-45deg);
+        }
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9); 
+            z-index: 40;
+            display: none; 
+        }
+        .mobile-menu-overlay.active {
+            display: block; 
+        }
+        #back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #3b82f6; 
+            color: white;
+            padding: 12px 16px;
+            border-radius: 9999px; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden; 
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            z-index: 100; 
+        }
+        #back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <header class="bg-gradient-to-r from-blue-600 to-purple-700 text-white p-4 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#" class="text-3xl font-bold rounded-lg p-2 hover:bg-white hover:text-blue-600 transition-all duration-300">MyStore</a>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#hero" class="hover:text-blue-200 transition-colors duration-200">Home</a>
+                <a href="#accessories" class="hover:text-blue-200 transition-colors duration-200">Accessories</a>
+                <a href="#clothes" class="hover:text-blue-200 transition-colors duration-200">Clothes</a>
+                <a href="#bags" class="hover:text-blue-200 transition-colors duration-200">Bags</a>
+                <a href="#shoes" class="hover:text-blue-200 transition-colors duration-200">Shoes</a>
+                <a href="#laptops" class="hover:text-blue-200 transition-colors duration-200">Laptop</a>
+                <a href="#mobiles" class="hover:text-blue-200 transition-colors duration-200">Mobiles</a> 
+                <a href="#beauty-products" class="hover:text-blue-200 transition-colors duration-200">Beauty</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <button id="cart-icon" class="relative p-2 rounded-full hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+                <button id="mobile-menu-button" class="md:hidden p-2 rounded-full hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    <div class="hamburger-icon">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </button>
+            </div>
+        </div>
+        <div class="mobile-menu-overlay" id="mobile-menu-overlay">
+            <ul class="flex flex-col items-center justify-center h-full space-y-8 text-white text-3xl">
+                <li><a href="#hero" class="hover:text-blue-400 transition duration-300" data-menu-link>Home</a></li>
+                <li><a href="#accessories" class="hover:text-blue-400 transition duration-300" data-menu-link>Accessories</a></li>
+                <li><a href="#clothes" class="hover:text-blue-400 transition duration-300" data-menu-link>Clothes</a></li>
+                <li><a href="#bags" class="hover:text-blue-400 transition duration-300" data-menu-link>Bags</a></li>
+                <li><a href="#shoes" class="hover:text-blue-400 transition duration-300" data-menu-link>Shoes</a></li>
+                <li><a href="#laptops" class="hover:text-blue-400 transition duration-300" data-menu-link>Laptop</a></li>
+                <li><a href="#mobiles" class="hover:text-blue-400 transition duration-300" data-menu-link>Mobiles</a></li> 
+                <li><a href="#beauty-products" class="hover:text-blue-400 transition duration-300" data-menu-link>Beauty Products</a></li>
+            </ul>
+        </div>
+    </header>
+    <section id="hero" class="relative h-96 bg-cover bg-center flex items-center justify-center text-white rounded-b-xl shadow-lg" style="background-image: url('img/bg1.jpg');">
+        <div class="absolute inset-0 bg-black opacity-50 rounded-b-xl"></div>
+        <div class="relative z-10 text-center p-4">
+            <h2 class="text-5xl font-extrabold mb-4 animate-pulse">Discover Your Style</h2>
+            <p class="text-xl mb-8">Shop the latest trends in fashion, tech, and beauty with confidence.</p>
+            <button class="bg-white text-blue-600 px-8 py-3 rounded-full text-lg font-semibold shadow-xl hover:bg-blue-100 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">Shop Now</button>
+        </div>
+    </section>
+    <main class="container mx-auto px-4 py-12">
+        <section id="accessories" class="mb-16 bg-white p-8 rounded-xl shadow-md">
+            <h2 class="text-4xl font-bold text-center mb-10 text-blue-700">Accessories <i class="fas fa-gem ml-2"></i></h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/belt.jpg" alt="Leather Belt" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Leather Belt</h3>
+                    <p class="text-gray-700 mb-4">RS-599.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="acc001" data-name="Leather Belt" data-price="599.00" data-image="https://placehold.co/400x300/FFD700/000000?text=Stylish+Watch">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/wallet.jpg" alt="Leather Wallet" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Leather Wallet</h3>
+                    <p class="text-gray-700 mb-4">RS-499.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="acc002" data-name="Leather Wallet" data-price="499.00" data-image="https://placehold.co/400x300/C0C0C0/000000?text=Leather+Wallet">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/glass.jpg" alt="Designer Sunglasses" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Designer Sunglasses</h3>
+                    <p class="text-gray-700 mb-4">RS-899.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="acc003" data-name="Designer Sunglasses" data-price="899.00" data-image="https://placehold.co/400x300/8B4513/FFFFFF?text=Designer+Sunglasses">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/speaker.jpg" alt="Bluetooth speaker" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Bluetooth speaker</h3>
+                    <p class="text-gray-700 mb-4">RS-1999.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="acc004" data-name="Bluetooth speaker" data-price="1999.00" data-image="https://placehold.co/400x300/ADD8E6/000000?text=Bluetooth+Headphones">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+        <section id="clothes" class="mb-16 bg-white p-8 rounded-xl shadow-md">
+            <h2 class="text-4xl font-bold text-center mb-10 text-purple-700">Clothes <i class="fas fa-tshirt ml-2"></i></h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/summer.jpg" alt="Summer Dress" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Summer Dress</h3>
+                    <p class="text-gray-700 mb-4">RS-599.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="clo001" data-name="Summer Dress" data-price="599.00" data-image="https://placehold.co/400x300/FF6347/FFFFFF?text=Summer+Dress">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/jeans.jpg" alt="Casual Jeans" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Casual Jeans</h3>
+                    <p class="text-gray-700 mb-4">RS-799.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="clo002" data-name="Casual Jeans" data-price="799.00" data-image="https://placehold.co/400x300/4682B4/FFFFFF?text=Casual+Jeans">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/tshirt.jpg" alt="Graphic Shirt" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Graphic T-Shirt</h3>
+                    <p class="text-gray-700 mb-4">RS-899.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="clo003" data-name="Graphic Shirt" data-price="899.00" data-image="https://placehold.co/400x300/9ACD32/000000?text=Graphic+T-Shirt">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/otd.jpg" alt="All Black" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">All Black Outfit</h3>
+                    <p class="text-gray-700 mb-4">RS-1599.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="clo004" data-name="All Black" data-price="1599.00" data-image="https://placehold.co/400x300/FFB6C1/000000?text=All+Black+Outfit">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+        <section id="bags" class="mb-16 bg-white p-8 rounded-xl shadow-md">
+            <h2 class="text-4xl font-bold text-center mb-10 text-green-700">Bags <i class="fas fa-shopping-bag ml-2"></i></h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/handbag.jpg" alt="Luxury Handbag" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Luxury Handbag</h3>
+                    <p class="text-gray-700 mb-4">RS-2499.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="bag001" data-name="Luxury Handbag" data-price="2499.00" data-image="https://placehold.co/400x300/A52A2A/FFFFFF?text=Luxury+Handbag">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/travell.jpg" alt="Travel Backpack" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Travel Backpack</h3>
+                    <p class="text-gray-700 mb-4">RS-8999.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="bag002" data-name="Travel Backpack" data-price="8999.00" data-image="https://placehold.co/400x300/808080/FFFFFF?text=Travel+Backpack">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/laptop.jpg" alt="Laptop Bag" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Laptop Bag</h3>
+                    <p class="text-gray-700 mb-4">RS-799.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="bag003" data-name="Laptop Bag" data-price="799.00" data-image="https://placehold.co/400x300/D2B48C/000000?text=Laptop+Bag">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/sports.jpg" alt="Sports Duffel Bag" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Sports Duffel Bag</h3>
+                    <p class="text-gray-700 mb-4">RS-1999.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="bag004" data-name="Sports Duffel Bag" data-price="1999.00" data-image="https://placehold.co/400x300/6A5ACD/FFFFFF?text=Sports+Duffel+Bag">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+        <section id="shoes" class="mb-16 bg-white p-8 rounded-xl shadow-md">
+            <h2 class="text-4xl font-bold text-center mb-10 text-orange-700">Shoes <i class="fas fa-shoe-prints ml-2"></i></h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/run.jpg" alt="Running Shoes" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Running Shoes</h3>
+                    <p class="text-gray-700 mb-4">RS-999.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="sho001" data-name="Running Shoes" data-price="999.00" data-image="https://placehold.co/400x300/FF4500/FFFFFF?text=Running+Shoes">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/formal.jpg" alt="Formal Loafers" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Formal Loafers</h3>
+                    <p class="text-gray-700 mb-4">RS-5999.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="sho002" data-name="Formal Loafers" data-price="5999.00" data-image="https://placehold.co/400x300/4B0082/FFFFFF?text=Formal+Loafers">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/casual.jpg" alt="Casual Sneakers" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Casual Sneakers</h3>
+                    <p class="text-gray-700 mb-4">RS-899.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="sho003" data-name="Casual Sneakers" data-price="899.00" data-image="https://placehold.co/400x300/F0F8FF/000000?text=Casual+Sneakers">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/heal.jpg" alt="High Heels" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">High Heels</h3>
+                    <p class="text-gray-700 mb-4">RS-799.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="sho004" data-name="High Heels" data-price="799.00" data-image="https://placehold.co/400x300/CD5C5C/FFFFFF?text=High+Heels">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+        <section id="laptops" class="mb-16 bg-white p-8 rounded-xl shadow-md">
+            <h2 class="text-4xl font-bold text-center mb-10 text-red-700">Laptop <i class="fas fa-laptop ml-2"></i></h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/gaming.jpg" alt="Gaming Laptop" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Gaming Laptop</h3>
+                    <p class="text-gray-700 mb-4">RS-79999.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="lap001" data-name="Gaming Laptop" data-price="79999.00" data-image="https://placehold.co/400x300/00008B/FFFFFF?text=Gaming+Laptop">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/ultrabook.jpg" alt="Ultrabook" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Ultrabook</h3>
+                    <p class="text-gray-700 mb-4">RS-62999.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="lap002" data-name="Ultrabook" data-price="62999.00" data-image="https://placehold.co/400x300/708090/FFFFFF?text=Ultrabook">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/2in1.png" alt="2-in-1 Laptop" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">2-in-1 Laptop</h3>
+                    <p class="text-gray-700 mb-4">RS-99999.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="lap003" data-name="2-in-1 Laptop" data-price="99999.00" data-image="https://placehold.co/400x300/A9A9A9/000000?text=2-in-1+Laptop">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/chrome.jpg" alt="Chromebook" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Chromebook</h3>
+                    <p class="text-gray-700 mb-4">RS-75499.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="lap004" data-name="Chromebook" data-price="75499.00" data-image="https://placehold.co/400x300/483D8B/FFFFFF?text=Chromebook">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+        <section id="mobiles" class="mb-16 bg-white p-8 rounded-xl shadow-md">
+            <h2 class="text-4xl font-bold text-center mb-10 text-cyan-700">Mobiles <i class="fas fa-mobile-alt ml-2"></i></h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/samsung.jpg" alt="Samsung Galaxy" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Samsung Galaxy</h3>
+                    <p class="text-gray-700 mb-4">RS-75000.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="mob001" data-name="Samsung Galaxy" data-price="75000.00" data-image="https://placehold.co/400x300/3498DB/FFFFFF?text=Samsung+Galaxy">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/iphone.jpg" alt="Apple iPhone" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Apple iPhone</h3>
+                    <p class="text-gray-700 mb-4">RS-90000.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="mob002" data-name="Apple iPhone" data-price="90000.00" data-image="https://placehold.co/400x300/27AE60/FFFFFF?text=Apple+iPhone">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/realme.jpg" alt="Vivo Smartphone" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Realme</h3>
+                    <p class="text-gray-700 mb-4">RS-25000.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="mob003" data-name="Realme" data-price="25000.00" data-image="https://placehold.co/400x300/E74C3C/FFFFFF?text=Vivo+Smartphone">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/oopo.png" alt="Oppo Smartphone" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Oppo Smartphone</h3>
+                    <p class="text-gray-700 mb-4">RS-30000.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="mob004" data-name="Oppo Smartphone" data-price="30000.00" data-image="https://placehold.co/400x300/F39C12/FFFFFF?text=Oppo+Smartphone">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+        <section id="beauty-products" class="mb-16 bg-white p-8 rounded-xl shadow-md">
+            <h2 class="text-4xl font-bold text-center mb-10 text-pink-700">Beauty Products <i class="fas fa-spa ml-2"></i></h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/moist.jpg" alt="Moisturizing Cream" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Moisturizing Cream</h3>
+                    <p class="text-gray-700 mb-4">RS-399.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="bea001" data-name="Moisturizing Cream" data-price="399.00" data-image="https://placehold.co/400x300/FFC0CB/000000?text=Moisturizing+Cream">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/anti.png" alt="Anti-Aging Serum" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Anti-Aging Serum</h3>
+                    <p class="text-gray-700 mb-4">RS-699.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="bea002" data-name="Anti-Aging Serum" data-price="699.00" data-image="https://placehold.co/400x300/FF69B4/FFFFFF?text=Anti-Aging+Serum">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/shanmpoo.jpg" alt="Organic Shampoo" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Organic Shampoo</h3>
+                    <p class="text-gray-700 mb-4">RS-299.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="bea003" data-name="Organic Shampoo" data-price="299.00" data-image="https://placehold.co/400x300/DA70D6/FFFFFF?text=Organic+Shampoo">Add to Cart</button>
+                </div>
+                <div class="product-card bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-2">
+                    <img src="img/perfume.jpg" alt="Luxury Perfume" class="w-full rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Luxury Perfume</h3>
+                    <p class="text-gray-700 mb-4">RS-1599.00</p>
+                    <button class="add-to-cart-btn bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    data-id="bea004" data-name="Luxury Perfume" data-price="1599.00" data-image="https://placehold.co/400x300/F08080/000000?text=Luxury+Perfume">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1000] hidden modal-overlay">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative transform transition-all duration-300 scale-95 opacity-0" id="cart-modal-content">
+            <button id="close-cart-modal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-3xl font-bold focus:outline-none">&times;</button>
+            <h2 class="text-3xl font-bold mb-6 text-center text-blue-700">Your Shopping Cart <i class="fas fa-shopping-cart ml-2"></i></h2>
+            <div id="cart-items-container" class="space-y-6">
+                </div>
+            <div class="mt-8 pt-6 border-t-2 border-gray-200 flex justify-between items-center text-2xl font-bold">
+                <span>Total:</span>
+                <span id="cart-total">$0.00</span>
+            </div>
+            <div class="mt-8 text-center">
+                <button id="proceed-to-checkout-btn" class="bg-gradient-to-r from-green-500 to-teal-600 text-white px-10 py-4 rounded-full text-xl font-semibold shadow-lg hover:from-green-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+    <div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1000] hidden modal-overlay">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto relative transform transition-all duration-300 scale-95 opacity-0" id="checkout-modal-content">
+            <button id="close-checkout-modal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-3xl font-bold focus:outline-none">&times;</button>
+            <h2 class="text-3xl font-bold mb-6 text-center text-purple-700">Checkout <i class="fas fa-credit-card ml-2"></i></h2>
+            <form id="checkout-form" class="space-y-6">
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h3 class="text-2xl font-semibold mb-4 text-blue-600">Shipping Information <i class="fas fa-truck ml-2"></i></h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="email" name="email" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                            <input type="text" id="address" name="address" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                            <input type="text" id="city" name="city" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="zip" class="block text-sm font-medium text-gray-700 mb-1">Zip Code</label>
+                            <input type="text" id="zip" name="zip" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h3 class="text-2xl font-semibold mb-4 text-green-600">Delivery Details <i class="fas fa-calendar-alt ml-2"></i></h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="deliveryDate" class="block text-sm font-medium text-gray-700 mb-1">Preferred Delivery Date</label>
+                            <input type="date" id="deliveryDate" name="deliveryDate" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
+                        </div>
+                        <div>
+                            <label for="deliveryTime" class="block text-sm font-medium text-gray-700 mb-1">Preferred Delivery Time</label>
+                            <select id="deliveryTime" name="deliveryTime" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
+                                <option value="">Select a time slot</option>
+                                <option value="09:00-12:00">09:00 AM - 12:00 PM</option>
+                                <option value="12:00-15:00">12:00 PM - 03:00 PM</option>
+                                <option value="15:00-18:00">03:00 PM - 06:00 PM</option>
+                                <option value="18:00-21:00">06:00 PM - 09:00 PM</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h3 class="text-2xl font-semibold mb-4 text-red-600">Payment Information <i class="fas fa-credit-card ml-2"></i></h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="cardNumber" class="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
+                            <input type="text" id="cardNumber" name="cardNumber" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500" placeholder="XXXX XXXX XXXX XXXX" required pattern="\d{16}" title="Please enter a 16-digit card number">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="expiryDate" class="block text-sm font-medium text-gray-700 mb-1">Expiry Date (MM/YY)</label>
+                                <input type="text" id="expiryDate" name="expiryDate" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500" placeholder="MM/YY" required pattern="(0[1-9]|1[0-2])\/\d{2}" title="Please enter in MM/YY format">
+                            </div>
+                            <div>
+                                <label for="cvv" class="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                                <input type="text" id="cvv" name="cvv" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500" placeholder="XXX" required pattern="\d{3,4}" title="Please enter a 3 or 4 digit CVV">
+                            </div>
+                            <div class="md:col-span-1">
+                                <label for="cardName" class="block text-sm font-medium text-gray-700 mb-1">Name on Card</label>
+                                <input type="text" id="cardName" name="cardName" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h3 class="text-2xl font-semibold mb-4 text-yellow-700">Order Summary <i class="fas fa-receipt ml-2"></i></h3>
+                    <div id="checkout-order-summary" class="space-y-2 text-lg">
+                        </div>
+                    <div class="mt-4 pt-4 border-t border-gray-300 flex justify-between items-center text-xl font-bold">
+                        <span>Grand Total:</span>
+                        <span id="checkout-grand-total">$0.00</span>
+                    </div>
+                </div>
+                <div class="text-center mt-8">
+                    <button type="submit" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-12 py-4 rounded-full text-xl font-semibold shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">Place Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1000] hidden modal-overlay">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md text-center relative transform transition-all duration-300 scale-95 opacity-0" id="success-modal-content">
+            <h2 class="text-3xl font-bold text-green-600 mb-4">Order Placed Successfully! <i class="fas fa-check-circle ml-2"></i></h2>
+            <p class="text-lg text-gray-700 mb-2">Your order has been placed and payment was successful.</p>
+            <p class="text-lg text-gray-700 mb-6">It will be delivered to:</p>
+            <p class="text-lg font-semibold text-gray-800" id="delivery-name-display"></p>
+            <p class="text-lg font-semibold text-gray-800" id="delivery-address-display"></p>
+            <p class="text-lg font-semibold text-gray-800" id="delivery-city-zip-display"></p>
+            <p class="text-lg text-gray-700 mt-4">Expected delivery on <span id="delivery-date-display" class="font-semibold"></span> between <span id="delivery-time-display" class="font-semibold"></span>.</p>
+            <button id="close-success-modal" class="bg-blue-500 text-white px-8 py-3 rounded-full hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 mt-8">Continue Shopping</button>
+        </div>
+    </div>
+    <button id="back-to-top" title="Go to top">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+    </button>
+    <footer class="bg-gray-800 text-white p-8 text-center rounded-t-xl shadow-lg mt-12">
+        <div class="container mx-auto">
+            <p class="text-lg mb-4">&copy; 2025 My Awesome E-commerce Store. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 text-2xl">
+                <a href="#" class="hover:text-blue-400 transition-colors duration-200"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="hover:text-blue-400 transition-colors duration-200"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="hover:text-blue-400 transition-colors duration-200"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="hover:text-blue-400 transition-colors duration-200"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cartIcon = document.getElementById('cart-icon');
+            const cartCountSpan = document.getElementById('cart-count');
+            const cartModal = document.getElementById('cart-modal');
+            const cartModalContent = document.getElementById('cart-modal-content');
+            const closeCartModalBtn = document.getElementById('close-cart-modal');
+            const cartItemsContainer = document.getElementById('cart-items-container');
+            const cartTotalSpan = document.getElementById('cart-total');
+            const proceedToCheckoutBtn = document.getElementById('proceed-to-checkout-btn');
+            const checkoutModal = document.getElementById('checkout-modal');
+            const checkoutModalContent = document.getElementById('checkout-modal-content');
+            const closeCheckoutModalBtn = document.getElementById('close-checkout-modal');
+            const checkoutForm = document.getElementById('checkout-form');
+            const checkoutOrderSummary = document.getElementById('checkout-order-summary');
+            const checkoutGrandTotal = document.getElementById('checkout-grand-total');
+            const deliveryDateInput = document.getElementById('deliveryDate');
+            const deliveryTimeSelect = document.getElementById('deliveryTime');
+            const successModal = document.getElementById('success-modal');
+            const successModalContent = document.getElementById('success-modal-content');
+            const closeSuccessModalBtn = document.getElementById('close-success-modal');
+            const deliveryDateDisplay = document.getElementById('delivery-date-display');
+            const deliveryTimeDisplay = document.getElementById('delivery-time-display');
+            const deliveryNameDisplay = document.getElementById('delivery-name-display');
+            const deliveryAddressDisplay = document.getElementById('delivery-address-display');
+            const deliveryCityZipDisplay = document.getElementById('delivery-city-zip-display');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+            const navLinks = document.querySelectorAll('nav a, [data-menu-link]');
+            const backToTopButton = document.getElementById('back-to-top');
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            function updateCartCount() {
+                const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+                cartCountSpan.textContent = totalItems;
+            }
+            function saveCart() {
+                localStorage.setItem('cart', JSON.stringify(cart));
+            }
+            function openModal(modalElement, contentElement) {
+                modalElement.classList.remove('hidden');
+                void contentElement.offsetWidth; // Trigger reflow for transition
+                contentElement.classList.remove('opacity-0', 'scale-95');
+                contentElement.classList.add('opacity-100', 'scale-100');
+            }
+            function closeModal(modalElement, contentElement) {
+                contentElement.classList.remove('opacity-100', 'scale-100');
+                contentElement.classList.add('opacity-0', 'scale-95');
+                contentElement.addEventListener('transitionend', () => {
+                    modalElement.classList.add('hidden');
+                }, { once: true });
+            }
+            function renderCartItems() {
+                cartItemsContainer.innerHTML = '';
+                let subtotal = 0;
+                if (cart.length === 0) {
+                    cartItemsContainer.innerHTML = '<p class="text-center text-gray-600 text-xl py-8">Your cart is empty. Start shopping!</p>';
+                    cartTotalSpan.textContent = '$0.00';
+                    proceedToCheckoutBtn.disabled = true;
+                    proceedToCheckoutBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    return;
+                }
+                proceedToCheckoutBtn.disabled = false;
+                proceedToCheckoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    const cartItemDiv = document.createElement('div');
+                    cartItemDiv.classList.add('flex', 'items-center', 'space-x-4', 'border-b', 'border-gray-200', 'pb-4', 'mb-4');
+                    cartItemDiv.innerHTML = `
+                        <img src="${item.image}" alt="${item.name}" class="w-24 h-24 object-cover rounded-lg shadow-md">
+                        <div class="flex-grow">
+                            <h3 class="text-xl font-semibold">${item.name}</h3>
+                            <p class="text-gray-600">Price: $${item.price.toFixed(2)}</p>
+                            <div class="flex items-center space-x-2 mt-2">
+                                <button class="quantity-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-md hover:bg-gray-300 transition-colors" data-id="${item.id}" data-change="-1">-</button>
+                                <span class="text-lg font-medium">${item.quantity}</span>
+                                <button class="quantity-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-md hover:bg-gray-300 transition-colors" data-id="${item.id}" data-change="1">+</button>
+                                <span class="ml-auto text-lg font-bold">$${itemTotal.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <button class="remove-item-btn text-red-500 hover:text-red-700 text-2xl transition-colors focus:outline-none" data-id="${item.id}">&times;</button>
+                    `;
+                    cartItemsContainer.appendChild(cartItemDiv);
+                });
+                cartTotalSpan.textContent = `$${subtotal.toFixed(2)}`;
+                document.querySelectorAll('.quantity-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const id = e.target.dataset.id;
+                        const change = parseInt(e.target.dataset.change);
+                        updateCartItemQuantity(id, change);
+                    });
+                });
+                document.querySelectorAll('.remove-item-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const id = e.target.dataset.id;
+                        removeCartItem(id);
+                    });
+                });
+            }
+            function addToCart(product) {
+                const existingItemIndex = cart.findIndex(item => item.id === product.id);
+
+                if (existingItemIndex > -1) {
+                    cart[existingItemIndex].quantity += 1;
+                } else {
+                    cart.push({ ...product, quantity: 1 });
+                }
+                saveCart();
+                updateCartCount();
+                const productName = product.name;
+                const messageBox = document.createElement('div');
+                messageBox.classList.add('fixed', 'bottom-8', 'right-8', 'bg-green-500', 'text-white', 'px-6', 'py-3', 'rounded-lg', 'shadow-xl', 'z-[1100]', 'flex', 'items-center', 'space-x-2', 'opacity-0', 'transform', 'translate-y-full', 'transition-all', 'duration-500');
+                messageBox.innerHTML = `<i class="fas fa-check-circle text-xl"></i> <span>"${productName}" added to cart!</span>`;
+                document.body.appendChild(messageBox);
+
+                setTimeout(() => {
+                    messageBox.classList.remove('opacity-0', 'translate-y-full');
+                    messageBox.classList.add('opacity-100', 'translate-y-0');
+                }, 10);
+                setTimeout(() => {
+                    messageBox.classList.remove('opacity-100', 'translate-y-0');
+                    messageBox.classList.add('opacity-0', 'translate-y-full');
+                    messageBox.addEventListener('transitionend', () => messageBox.remove(), { once: true });
+                }, 3000);
+            }
+            function updateCartItemQuantity(id, change) {
+                const itemIndex = cart.findIndex(item => item.id === id);
+                if (itemIndex > -1) {
+                    cart[itemIndex].quantity += change;
+                    if (cart[itemIndex].quantity <= 0) {
+                        removeCartItem(id);
+                    } else {
+                        saveCart();
+                        renderCartItems();
+                        updateCartCount();
+                    }
+                }
+            }
+            function removeCartItem(id) {
+                cart = cart.filter(item => item.id !== id);
+                saveCart();
+                renderCartItems();
+                updateCartCount();
+            }
+            function renderCheckoutSummary() {
+                checkoutOrderSummary.innerHTML = '';
+                let grandTotal = 0;
+                if (cart.length === 0) {
+                    checkoutOrderSummary.innerHTML = '<p class="text-center text-gray-600">Your cart is empty.</p>';
+                    checkoutGrandTotal.textContent = '$0.00';
+                    return;
+                }
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    grandTotal += itemTotal;
+                    const summaryItemDiv = document.createElement('div');
+                    summaryItemDiv.classList.add('flex', 'justify-between', 'items-center');
+                    summaryItemDiv.innerHTML = `
+                        <span>${item.name} (x${item.quantity})</span>
+                        <span>$${itemTotal.toFixed(2)}</span>
+                    `;
+                    checkoutOrderSummary.appendChild(summaryItemDiv);
+                });
+                const shippingCost = 10.00;
+                grandTotal += shippingCost;
+                const shippingDiv = document.createElement('div');
+                shippingDiv.classList.add('flex', 'justify-between', 'items-center', 'text-gray-600', 'text-base');
+                shippingDiv.innerHTML = `
+                    <span>Shipping:</span>
+                    <span>$${shippingCost.toFixed(2)}</span>
+                `;
+                checkoutOrderSummary.appendChild(shippingDiv);
+
+                checkoutGrandTotal.textContent = `$${grandTotal.toFixed(2)}`;
+            }
+            document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const product = {
+                        id: e.target.dataset.id,
+                        name: e.target.dataset.name,
+                        price: parseFloat(e.target.dataset.price),
+                        image: e.target.dataset.image
+                    };
+                    addToCart(product);
+                });
+            });
+            cartIcon.addEventListener('click', () => {
+                renderCartItems();
+                openModal(cartModal, cartModalContent);
+            });
+            closeCartModalBtn.addEventListener('click', () => {
+                closeModal(cartModal, cartModalContent);
+            });
+            proceedToCheckoutBtn.addEventListener('click', () => {
+                closeModal(cartModal, cartModalContent);
+                renderCheckoutSummary();
+                openModal(checkoutModal, checkoutModalContent);
+                const today = new Date();
+                const dd = String(today.getDate()).padStart(2, '0');
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const yyyy = today.getFullYear();
+                deliveryDateInput.min = `${yyyy}-${mm}-${dd}`;
+            });
+            closeCheckoutModalBtn.addEventListener('click', () => {
+                closeModal(checkoutModal, checkoutModalContent);
+            });
+            checkoutForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!checkoutForm.checkValidity()) {
+                    console.error('Please fill in all required fields correctly.');
+                    return;
+                }
+                const fullName = document.getElementById('fullName').value;
+                const address = document.getElementById('address').value;
+                const city = document.getElementById('city').value;
+                const zip = document.getElementById('zip').value;
+                const deliveryDate = deliveryDateInput.value;
+                const deliveryTime = deliveryTimeSelect.value;
+                setTimeout(() => {
+                    cart = []; 
+                    saveCart();
+                    updateCartCount();
+                    deliveryNameDisplay.textContent = fullName;
+                    deliveryAddressDisplay.textContent = address;
+                    deliveryCityZipDisplay.textContent = `${city}, ${zip}`;
+                    deliveryDateDisplay.textContent = deliveryDate;
+                    deliveryTimeDisplay.textContent = deliveryTime;
+                    closeModal(checkoutModal, checkoutModalContent);
+                    openModal(successModal, successModalContent);
+                }, 1000); 
+            });
+            closeSuccessModalBtn.addEventListener('click', () => {
+                closeModal(successModal, successModalContent);
+            });
+            if (mobileMenuButton && mobileMenuOverlay) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenuButton.classList.toggle('active');
+                    mobileMenuOverlay.classList.toggle('active');
+                    document.body.classList.toggle('overflow-hidden'); 
+                });
+            }
+            navLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    if (mobileMenuOverlay.classList.contains('active')) {
+                        mobileMenuButton.classList.remove('active');
+                        mobileMenuOverlay.classList.remove('active');
+                        document.body.classList.remove('overflow-hidden');
+                    }
+                    const targetId = link.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        event.preventDefault(); 
+                        const headerHeight = document.querySelector('header').offsetHeight;
+                        const offsetTop = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                        window.scrollTo({
+                            top: offsetTop - headerHeight, 
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            if (backToTopButton) {
+                window.addEventListener('scroll', () => {
+                    if (window.pageYOffset > 300) { 
+                        backToTopButton.classList.add('show');
+                    } else {
+                        backToTopButton.classList.remove('show');
+                    }
+                });
+                backToTopButton.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+            updateCartCount();
+        });
+    </script>
+</body>
+</html>
